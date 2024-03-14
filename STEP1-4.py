@@ -161,6 +161,182 @@ wb.save(file_path)
 # Save the filtered data in new worksheets named "Parent1" and "Parent2"
 # Apply cell color as needed
 # Save the workbook
+###Step3
+###### STEP3
+import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import PatternFill
+
+# 步骤1：读取并筛选数据
+file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
+sheet_name = "Segregating loci"
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# 只保留 A_Count=0 或 B_Count=0 的行
+df_filtered = df[(df['A_Count'] == 0) | (df['B_Count'] == 0)]
+
+# 步骤2：保存筛选后的数据
+wb = load_workbook(file_path)
+ws = wb.create_sheet("1 to 1")  # 创建新工作表 "1 to 1"
+
+# 将筛选后的数据逐行逐列写入新工作表
+for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
+    for c_idx, value in enumerate(row, 1):
+        cell = ws.cell(row=r_idx, column=c_idx, value=value)
+        # 步骤3：应用单元格颜色
+        if value == 'A':
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+        elif value == 'B':
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+        elif value == 'H':
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+
+# 步骤4：保存工作簿
+wb.save(file_path)
+import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import PatternFill
+
+# 步骤1：读取并筛选数据
+file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
+sheet_name = "LG4-step1"
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# 只保留 H_Count=0 且 f(A) 大于 0.44 且小于 0.56 的行
+df_filtered = df[(df['H_Count'] == 0) & (df['f(A)'] > 0.44) & (df['f(A)'] < 0.56)]
+# 步骤2：保存筛选后的数据
+wb = load_workbook(file_path)
+ws = wb.create_sheet("A-B")  # 创建新工作表 "A-B"
+
+# 将筛选后的数据逐行逐列写入新工作表
+for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
+    for c_idx, value in enumerate(row, 1):
+        cell = ws.cell(row=r_idx, column=c_idx, value=value)
+        # 步骤3：应用单元格颜色
+        if value == 'A':
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+        elif value == 'B':
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+        elif value == 'H':
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+
+# 步骤4：保存工作簿
+wb.save(file_path)
+import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import PatternFill
+
+# 步骤1：读取数据
+file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
+sheet_name = "Segregating loci"
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# 筛选第四列和第五列都是H的行
+df_filtered = df[(df.iloc[:, 3] == 'H') & (df.iloc[:, 4] == 'H')]
+
+# 统计每行的ABH数量并去除A或B小于总数5.5%的行
+def check_ab_percentage(row):
+    total_count = len(row) - row.isnull().sum() - 2  # 减去非ABH列和空值
+    a_count = (row == 'A').sum()
+    b_count = (row == 'B').sum()
+    # 检查A或B是否小于总数的5.5%
+    if a_count < total_count * 0.055 or b_count < total_count * 0.055:
+        return False
+    return True
+
+df_filtered = df_filtered[df_filtered.apply(check_ab_percentage, axis=1)]
+
+# 步骤2：保存筛选后的数据
+wb = load_workbook(file_path)
+ws = wb.create_sheet("1 to 2 to 1")  # 创建新工作表 "1 to 2 to 1"
+
+# 将筛选后的数据逐行逐列写入新工作表
+for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
+    for c_idx, value in enumerate(row, 1):
+        cell = ws.cell(row=r_idx, column=c_idx, value=value)
+        # 应用单元格颜色
+        if value == 'A':
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+        elif value == 'B':
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+        elif value == 'H':
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+
+# 步骤3：保存工作簿
+wb.save(file_path)
+
+#创建Parent1和2
+import pandas as pd
+
+# 加载数据
+file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
+sheet_name = "1 to 1"
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# 筛选行
+df_filtered = df[((df.iloc[:, 3] == 'H') & (df.iloc[:, 4] == 'A')) | ((df.iloc[:, 3] == 'H') & (df.iloc[:, 4] == 'B'))]
+
+# 替换操作：从第六列开始，所有的'B'替换成'A'
+df_filtered.iloc[:, 5:] = df_filtered.iloc[:, 5:].replace('B', 'A')
+
+# 步骤2：保存筛选后的数据
+wb = load_workbook(file_path)
+ws = wb.create_sheet("Parent1")  # 创建新工作表 "Parent1"
+
+# 将筛选后的数据逐行逐列写入新工作表
+for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
+    for c_idx, value in enumerate(row, 1):
+        cell = ws.cell(row=r_idx, column=c_idx, value=value)
+        # 应用单元格颜色
+        if value == 'A':
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+        elif value == 'B':
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+        elif value == 'H':
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+
+# 步骤3：保存工作簿
+wb.save(file_path)
+
+import pandas as pd
+
+# 加载数据
+file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
+sheet_name = "1 to 1"
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# 筛选行
+df_filtered = df[((df.iloc[:, 4] == 'H') & (df.iloc[:, 3] == 'A')) | ((df.iloc[:, 4] == 'H') & (df.iloc[:, 3] == 'B'))]
+
+# 替换操作：从第六列开始，所有的'B'替换成'A'
+df_filtered.iloc[:, 5:] = df_filtered.iloc[:, 5:].replace('B', 'A')
+
+# 步骤2：保存筛选后的数据
+wb = load_workbook(file_path)
+ws = wb.create_sheet("Parent2")  # 创建新工作表 "Parent2"
+
+# 将筛选后的数据逐行逐列写入新工作表
+for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
+    for c_idx, value in enumerate(row, 1):
+        cell = ws.cell(row=r_idx, column=c_idx, value=value)
+        # 应用单元格颜色
+        if value == 'A':
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+        elif value == 'B':
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+        elif value == 'H':
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+
+# 步骤3：保存工作簿
+wb.save(file_path)
+
+
+
+
+
 
 ###STEP4-PART1
 
