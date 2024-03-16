@@ -167,33 +167,53 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import PatternFill
-
-# 步骤1：读取并筛选数据
+# Step 1: Read and filter data
 file_path = "E:/My_python_work_xibanya/LG4processed.xlsx"
 sheet_name = "Segregating loci"
 df = pd.read_excel(file_path, sheet_name=sheet_name)
 
-# 只保留 A_Count=0 或 B_Count=0 的行
-df_filtered = df[(df['A_Count'] == 0) | (df['B_Count'] == 0)]
 
-# 步骤2：保存筛选后的数据
+# 计算列名中包含"Individual"的列数，作为总数
+total_individuals = sum('Individual' in col for col in df.columns)
+# 计算3%的阈值（3%后期可调整）
+error_threshold = total_individuals * 0.03
+# 筛选行，允许A_Count或B_Count小于等于3%的总数（可选项）
+df_filtered = df[((df['A_Count'] <= error_threshold) | (df['B_Count'] == 0)) | ((df['B_Count'] <= error_threshold) | (df['A_Count'] == 0))]
+
+
+genotype_start_col_index = 5
+# 对筛选后的df_filtered进行处理
+for index, row in df_filtered.iterrows():
+    for col in df.columns[5:]:  # 假设从第六列开始是需要替换的数据列
+        cell_value = row[col]
+        # 检查cell_value是否为字符串类型
+        if isinstance(cell_value, str):
+            if row['A_Count'] <= error_threshold:
+                df_filtered.at[index, col] = cell_value.replace('A', 'B')
+            if row['B_Count'] <= error_threshold:
+                df_filtered.at[index, col] = cell_value.replace('B', 'A')
+
+##此处最好重新计算A，B，H数量
+
+# Step 2: Save the filtered data
 wb = load_workbook(file_path)
-ws = wb.create_sheet("1 to 1")  # 创建新工作表 "1 to 1"
+ws = wb.create_sheet("1 to 1")  # Create a new worksheet "1 to 1"
 
-# 将筛选后的数据逐行逐列写入新工作表
+# Write the filtered data into the new worksheet row by row, cell by cell
 for r_idx, row in enumerate(dataframe_to_rows(df_filtered, index=False, header=True), 1):
     for c_idx, value in enumerate(row, 1):
         cell = ws.cell(row=r_idx, column=c_idx, value=value)
-        # 步骤3：应用单元格颜色
+        # Step 3: Apply cell color
         if value == 'A':
-            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # 浅红色
+            cell.fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')  # Light red
         elif value == 'B':
-            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # 浅黄色
+            cell.fill = PatternFill(start_color='FFEB9C', end_color='FFEB9C', fill_type='solid')  # Light yellow
         elif value == 'H':
-            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # 浅绿色
+            cell.fill = PatternFill(start_color='C6EFCE', end_color='C6EFCE', fill_type='solid')  # Light green
 
-# 步骤4：保存工作簿
+# Step 4: Save the workbook
 wb.save(file_path)
+
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
